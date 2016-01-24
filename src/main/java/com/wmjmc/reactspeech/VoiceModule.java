@@ -26,11 +26,12 @@ public class VoiceModule extends ReactContextBaseJavaModule implements ActivityE
 
     final ReactApplicationContext reactContext;
     private Promise mVoicepromise;
+    private final Activity mMainActivity;
 
-    public VoiceModule(ReactApplicationContext reactContext) {
+    public VoiceModule(ReactApplicationContext reactContext, Activity mainActivity) {
         super(reactContext);
         this.reactContext = reactContext;
-        this.reactContext.addActivityEventListener(this);
+        this.mMainActivity = mainActivity;
     }
 
     @Override
@@ -59,9 +60,10 @@ public class VoiceModule extends ReactContextBaseJavaModule implements ActivityE
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(locale));
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getPrompt(prompt));
-        if (intent.resolveActivity(this.reactContext.getPackageManager()) != null) {
+        
+        if (intent.resolveActivity(this.mMainActivity.getPackageManager()) != null) {
             try{
-                this.reactContext.startActivityForResult(intent, REQUEST_SPEECH_ACTIVITY, null);
+                this.mMainActivity.startActivityForResult(intent, REQUEST_SPEECH_ACTIVITY);
             }catch(Exception ex){
                 mVoicepromise.reject(ErrorConstants.E_FAILED_TO_SHOW_VOICE);
                 mVoicepromise = null;

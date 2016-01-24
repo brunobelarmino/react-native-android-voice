@@ -15,11 +15,19 @@ import java.util.List;
  */
 public class VoicePackage implements ReactPackage {
 
+    private final Activity mMainActivity;
+    private VoiceModule mModuleInstance;
+
+    public VoicePackage(Activity mainActivity) {
+        this.mMainActivity = mainActivity;
+    }
+
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactApplicationContext) {
         List<NativeModule> modules = new ArrayList<>();
 
-        modules.add(new VoiceModule(reactApplicationContext));
+        this.mModuleInstance = new VoiceModule(reactApplicationContext, this.mMainActivity); 
+        modules.add(this.mModuleInstance);
 
         return modules;
     }
@@ -32,6 +40,14 @@ public class VoicePackage implements ReactPackage {
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactApplicationContext) {
         return Collections.emptyList();
+    }
+
+    public void handleActivityResult(final int requestCode, final int resultCode, final Intent data) {
+      if (this.mModuleInstance == null) {
+          return;
+      }
+
+      this.mModuleInstance.onActivityResult(requestCode, resultCode, data);
     }
 
 }
